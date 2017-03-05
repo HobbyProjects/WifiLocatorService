@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'access_tokens',
     'website',
     'app',
 ]
@@ -74,6 +75,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'website.wsgi.application'
 
+# secret key for token generation
+SECRET_KEY = os.environ.get('TOKEN_KEY')
 
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases

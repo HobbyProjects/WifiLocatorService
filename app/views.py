@@ -1,19 +1,44 @@
+import os
 from decimal import *
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
 from app.models import WifiPoint
 from app.utils import StaticUtils
+from django.contrib.admin.views.decorators import staff_member_required
+from access_tokens import scope, tokens
 
 # Create your views here.
+@staff_member_required
 def index(request):
-    return HttpResponse('You have arrived at the index')
+    _application   = request.GET['app']
+    _scope         = request.GET['scope']
 
-def addNewWifi(request):
+    # Generate an access token for a scope permission on a given app.
+    publish_app_token = tokens.generate(
+    scope.access_app(_application, _scope),
+    )
+
+    return HttpResponse( 'Your token is:' + publish_app_token)
+
+def addNewWifi(request):  
+    _key         = request.GET['key']
     _wifi_name   = request.GET['name']
     _password    = request.GET['pwd']
     _loc_lat     = Decimal(request.GET['lat'])
     _loc_long    = Decimal(request.GET['long'])
+
+    # validate the key first
+    bValidated = tokens.validate(
+        _key,
+        scope.access_app(os.environ['APP_NAME'], os.environ['SCOPE']),
+    )
+
+    if bValidated == False:
+        # return an error response
+        result = dict(Reason='Permission denied!')
+        response = dict(Status='failure', Response=result)
+        return JsonResponse(response)
 
     # validate the supplied params
     latitudeCheck = StaticUtils.isLatitudeValid(_loc_lat)
@@ -62,8 +87,21 @@ def addNewWifi(request):
     return JsonResponse(response)
 
 def findWifiPoints(request):
+    _key         = request.GET['key']
     _loc_lat  = Decimal(request.GET['lat'])
     _loc_long = Decimal(request.GET['long'])
+
+    # validate the key first
+    bValidated = tokens.validate(
+        _key,
+        scope.access_app(os.environ['APP_NAME'], os.environ['SCOPE']),
+    )
+
+    if bValidated == False:
+        # return an error response
+        result = dict(Reason='Permission denied!')
+        response = dict(Status='failure', Response=result)
+        return JsonResponse(response)
 
     # validate the supplied params
     latitudeCheck = StaticUtils.isLatitudeValid(_loc_lat)
