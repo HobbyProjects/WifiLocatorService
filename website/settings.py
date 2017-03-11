@@ -37,10 +37,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'sslserver',
     'access_tokens',
     'website',
     'app',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -53,6 +55,18 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'website.urls'
+
+# For using https
+SECURE_SSL_REDIRECT = True
+
+# Secure the cookies
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# HSTS settings
+SECURE_HSTS_SECONDS = 31536000 
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+
 
 TEMPLATES = [
     {
